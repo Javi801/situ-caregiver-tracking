@@ -112,6 +112,10 @@ export const COPY = {
       pending: "Awaiting info",
       late: "Running late",
     },
+    familyDecision: {
+      waiting: "Family waiting",
+      requested: "Replacement requested",
+    },
     activeShift: "Active shift",
     assignedCaregiver: "Assigned caregiver",
     eta: "ETA",
@@ -252,6 +256,8 @@ export const COPY = {
     requestReplacement: "Request replacement",
     waitToast: "Thanks. We'll keep you updated.",
     requestToast: "Replacement requested. Operations is finding a match.",
+    replacementRequestedNote:
+      "Replacement requested. We've notified operations — you'll be updated as soon as a caregiver is assigned.",
     fillRecord: "Fill medical record",
     fillRecordNote: "The caregiver is running late. You can fill in the medical record now.",
     reportNotArrived: "Report caregiver not arrived",

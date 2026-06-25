@@ -61,6 +61,18 @@ describe("FamilyStatus", () => {
       await user.click(screen.getByRole("button", { name: COPY.family.wait }));
       expect(screen.getByText(COPY.family.waitToast)).toBeInTheDocument();
     });
+
+    it("only flags the request and locks the buttons — no replacement window — when requesting", async () => {
+      const user = userEvent.setup();
+      renderWithProviders(<FamilyStatus />);
+
+      await user.click(screen.getByRole("button", { name: COPY.family.requestReplacement }));
+
+      // The family is told operations was notified; it is not asked to pick or confirm anyone.
+      expect(screen.getByText(COPY.family.replacementRequestedNote)).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: COPY.family.wait })).toBeDisabled();
+      expect(screen.getByRole("button", { name: COPY.family.requestReplacement })).toBeDisabled();
+    });
   });
 
   it("lets the family report a missing caregiver inside the arrival window", () => {

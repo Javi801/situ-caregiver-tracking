@@ -33,6 +33,9 @@ export function FamilyStatus() {
   const delayed = isDelayed(scheduledEtaMinutes, shift.etaMinutes);
   const canReportMissing =
     !hasCheckedIn && isWithinArrivalWindow(shift.startsAt, HANDOFF_WINDOW_MINUTES, new Date());
+  // Replacement requested but operations hasn't assigned anyone yet: lock the
+  // decision buttons and wait — no replacement is shown until operations acts.
+  const replacementRequested = shift.status === "replacement_requested" && !assignedReplacementId;
 
   function handleWait() {
     markFamilyWaiting(shift.etaMinutes);
@@ -40,9 +43,10 @@ export function FamilyStatus() {
   }
 
   function handleRequestReplacement() {
+    // Flag the request for operations and wait. The family does not pick or
+    // confirm a replacement — operations decides and informs them afterwards.
     setStatus("replacement_requested");
     notify(COPY.family.requestToast);
-    navigate(ROUTES.replacement);
   }
 
   function handleFillRecord() {
@@ -83,6 +87,16 @@ export function FamilyStatus() {
             </div>
           ) : null}
 
+          {replacementRequested ? (
+            <div
+              className={cn("flex items-start gap-2 rounded-lg border p-4 text-sm", FEEDBACK.info)}
+              role="status"
+            >
+              <Info className="mt-0.5 h-4 w-4" aria-hidden="true" />
+              <p>{COPY.family.replacementRequestedNote}</p>
+            </div>
+          ) : null}
+
           {canReportMissing ? (
             <div
               className={cn("flex items-start gap-2 rounded-lg border p-4 text-sm", FEEDBACK.warning)}
@@ -113,10 +127,12 @@ export function FamilyStatus() {
 
           {delayed ? (
             <>
-              <Button variant="secondary" onClick={handleWait}>
+              <Button variant="secondary" onClick={handleWait} disabled={replacementRequested}>
                 {COPY.family.wait}
               </Button>
-              <Button onClick={handleRequestReplacement}>{COPY.family.requestReplacement}</Button>
+              <Button onClick={handleRequestReplacement} disabled={replacementRequested}>
+                {COPY.family.requestReplacement}
+              </Button>
               {!record ? (
                 <Button variant="secondary" onClick={handleFillRecord}>
                   <ClipboardList className="h-4 w-4" aria-hidden="true" />
