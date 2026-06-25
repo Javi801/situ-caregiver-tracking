@@ -1,8 +1,9 @@
-import { useCallback, useRef, useState, type ReactNode } from "react";
+import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 import { CheckCircle2, X } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { BORDER, ICON, INTERACTIVE, SURFACE, TEXT } from "@/config/theme";
 import { COPY } from "@/content/copy";
+import { TOAST_DURATION_MS } from "@/config/constants";
 import { ToastContext } from "@/components/feedback/toast-context";
 
 interface Toast {
@@ -13,15 +14,34 @@ interface Toast {
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const nextIdRef = useRef(1);
+  const timersRef = useRef<Map<number, ReturnType<typeof setTimeout>>>(new Map());
 
   const dismiss = useCallback((id: number) => {
     setToasts((current) => current.filter((toast) => toast.id !== id));
+    const timer = timersRef.current.get(id);
+    if (timer) {
+      clearTimeout(timer);
+      timersRef.current.delete(id);
+    }
   }, []);
 
-  const notify = useCallback((message: string) => {
-    const toastId = nextIdRef.current;
-    nextIdRef.current += 1;
-    setToasts((current) => [...current, { id: toastId, message }]);
+  const notify = useCallback(
+    (message: string) => {
+      const toastId = nextIdRef.current;
+      nextIdRef.current += 1;
+      setToasts((current) => [...current, { id: toastId, message }]);
+      const timer = setTimeout(() => dismiss(toastId), TOAST_DURATION_MS);
+      timersRef.current.set(toastId, timer);
+    },
+    [dismiss],
+  );
+
+  useEffect(() => {
+    const timers = timersRef.current;
+    return () => {
+      timers.forEach((timer) => clearTimeout(timer));
+      timers.clear();
+    };
   }, []);
 
   return (
