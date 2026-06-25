@@ -38,9 +38,12 @@ export function ReplacementFlow() {
     <PageShell title={COPY.replacement.title}>
       <Card>
         <CardHeader title={COPY.replacement.suggested} />
-        <CardBody>
+        <CardBody className="space-y-3">
           {suggested ? (
-            <ReplacementCard caregiver={suggested} />
+            <>
+              <ReplacementCard caregiver={suggested} />
+              <p className={cn("text-sm", TEXT.muted)}>{COPY.replacement.note}</p>
+            </>
           ) : (
             <p className={cn("text-sm", TEXT.muted)}>{COPY.operations.empty}</p>
           )}
