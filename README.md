@@ -19,23 +19,23 @@ La interpretación usada para este proyecto es que el desafío principal no es e
 
 ## Solución implementada
 
-La solución elegida es la detección en tiempo real y respuesta operacional. El prototipo simula una experiencia con tres actores:
+La solución elegida es la detección en tiempo real y respuesta operacional. El prototipo simula una experiencia con tres actores y un estado compartido del turno:
 
-- **Cuidadora:** revisa su turno, inicia traslado, ve el ETA, registra llegada y completa la ficha del turno.
-- **Operaciones Situ:** monitorea turnos activos, identifica riesgo de atraso, revisa reemplazos sugeridos y coordina cobertura.
-- **Familia:** consulta el estado del turno, recibe información de atraso, decide esperar o solicitar reemplazo y puede revisar fichas de cuidado.
+- **Cuidadora:** revisa turnos activos, próximos y completados; inicia traslado; comparte una actualización de ubicación simulada; ve el ETA; registra llegada; revisa fichas previas; responde a una eventual rotación; y completa la ficha del turno.
+- **Operaciones Situ:** monitorea turnos activos, próximos y calendario; identifica riesgo de atraso; contacta a la familia; envía recordatorios de ubicación; revisa checklist de verificación; gestiona reemplazos completos o parciales; y coordina rotaciones entre cuidadoras cuando no hay respaldo suficiente.
+- **Familia:** consulta próximos turnos, ve el ETA del turno activo, reporta que la cuidadora no llegó dentro de la ventana esperada, decide esperar o solicitar reemplazo, responde a rotaciones y revisa o completa fichas de cuidado.
 
 El flujo principal es:
 
 1. La cuidadora ve el turno asignado del día.
 2. Confirma el inicio del traslado.
-3. El sistema simula ETA y estado del trayecto.
-4. Se puede simular un atraso para activar riesgo operacional.
-5. Operaciones visualiza el turno como caso prioritario.
-6. La familia recibe una vista clara del estado y puede esperar o pedir reemplazo.
-7. Operaciones asigna una cuidadora alternativa cuando corresponde.
-8. La cuidadora registra check-in.
-9. Se completa una ficha de traspaso del turno.
+3. En seguimiento, la cuidadora puede compartir ubicación y elegir si la actualización reporta llegada a tiempo o atraso.
+4. Si se detecta atraso, el sistema actualiza ETA, estado del turno y riesgo operacional.
+5. Operaciones visualiza el turno como caso prioritario, contacta a la familia o envía recordatorio de ubicación.
+6. La familia recibe una vista clara del estado, puede esperar, solicitar reemplazo o completar la ficha si la cuidadora va tarde.
+7. Operaciones puede asignar reemplazo completo, reemplazo momentáneo o proponer una rotación entre cuidadoras.
+8. Si hay rotación, las partes involucradas pueden aceptar o rechazar el cambio desde sus vistas.
+9. La cuidadora registra check-in y completa la ficha del turno.
 
 ## Alcance del mockup
 
@@ -82,13 +82,35 @@ Generar build:
 npm run build
 ```
 
+## Cómo usar el mockup
+
+El mockup está pensado para ser revisado como una demo guiada. Al abrir la aplicación se muestran tres perspectivas: cuidadora, operaciones y familia. Cada una permite ver el mismo problema desde un rol distinto.
+
+Para probar el flujo principal:
+
+1. Entrar como **Caregiver**.
+2. Abrir el turno activo desde **Active & upcoming** y presionar **Start trip**.
+3. En **Trip in progress**, presionar **Share my location**. Se abre una ventana de control de demo con dos opciones: **Arriving on time**, que mantiene el turno en ruta y el ETA dentro de lo esperado, o **Running late**, que aumenta el ETA, marca el turno como atrasado y notifica a operaciones/familia.
+4. Alternativamente, presionar **I'm running late** para forzar el atraso sin abrir el diálogo de ubicación.
+5. Entrar como **Operations**. En el tab **Active**, abrir el turno atrasado para revisar ETA, riesgo, checklist de verificación, contacto con familia, recordatorio de ubicación y sugerencias de reemplazo.
+6. Entrar como **Family** y abrir el turno activo. La familia puede decidir **Wait**, pedir **Request replacement**, completar la ficha mientras espera o responder a una propuesta de rotación.
+7. Desde operaciones, entrar a **Manage replacement**. Ahí se puede asignar un reemplazo de turno completo, asignar un reemplazo momentáneo o proponer una **caregiver rotation** cuando ningún respaldo cubre todo el turno.
+8. Volver a **Caregiver** para responder una eventual rotación, registrar llegada en **Check in** y completar la ficha del turno.
+
+En la esquina inferior izquierda hay dos controles de demo:
+
+- **Reset demo state:** vuelve el prototipo a su estado inicial.
+- **Simulate delay:** fuerza un atraso sobre el turno activo sin tener que recorrer todo el flujo.
+
+Estos controles existen solo para facilitar la revisión del caso. En una implementación real, el atraso vendría de eventos como falta de confirmación de traslado, ubicación periódica, ETA actualizado o ausencia de check-in dentro de la ventana esperada.
+
 ## Recorrido sugerido para evaluar el mockup
 
 Para revisar el caso completo, se recomienda partir en `/`, elegir un actor y recorrer el flujo desde cada perspectiva:
 
-- **Cuidadora:** entrar a `/caregiver`, abrir el turno del día, iniciar traslado en `/tracking`, simular atraso, registrar llegada en `/checkin` y completar la ficha en `/handoff`.
-- **Operaciones:** entrar a `/operations` para ver el tablero de turnos, identificar el caso con riesgo, revisar candidatas de reemplazo y asignar cobertura.
-- **Familia:** entrar a `/family`, abrir el turno activo, revisar el estado de llegada, decidir si espera o solicita reemplazo y consultar el historial en `/family/records`.
+- **Cuidadora:** entrar a `/caregiver`, revisar tabs de turnos activos/próximos y completados, abrir el turno del día, iniciar traslado en `/tracking`, usar el diálogo de **Share my location**, registrar llegada en `/checkin`, responder rotaciones si aparecen y completar la ficha en `/handoff`.
+- **Operaciones:** entrar a `/operations`, alternar entre **Active**, **Upcoming** y **Calendar**, abrir un turno, revisar riesgo/checklist, contactar familia, enviar recordatorio, gestionar reemplazo en `/operations/shift/:shiftId/replacement` o proponer rotación en `/operations/shift/:shiftId/swap`.
+- **Familia:** entrar a `/family`, abrir el turno activo, revisar ETA y estado, reportar no llegada si está dentro de la ventana previa al turno, decidir si espera o solicita reemplazo, responder una rotación y consultar el historial en `/family/records`.
 
 Esta separación permite evaluar el mismo incidente desde los tres puntos de vista relevantes: quien presta el servicio, quien coordina la operación y quien recibe el cuidado.
 
@@ -113,17 +135,22 @@ La lógica de negocio se mantiene fuera de los componentes para que sea fácil d
 - `src/lib/replacements.ts`: ranking de cuidadoras de reemplazo.
 - `src/lib/arrivalWindow.ts`: ventana previa al inicio del turno.
 - `src/lib/opsState.ts`: estado de triage para operaciones.
+- `src/lib/familyDecision.ts`: lectura operacional de la decisión de la familia.
+- `src/lib/familyShiftState.ts`: estado visible para la familia.
 - `src/lib/schedule.ts`: utilidades horarias.
 - `src/lib/shiftState.ts`: transiciones del estado del turno.
+- `src/lib/swap.ts`: reglas de aceptación y aplicación de rotaciones.
 
 ## Decisiones de producto reflejadas
 
 - La geolocalización se modela como una señal operacional acotada al traslado, no como monitoreo permanente.
 - El ETA y el riesgo se calculan respecto del ETA programado, permitiendo detectar desviaciones antes del inicio formal.
-- La familia recibe información accionable: esperar, solicitar reemplazo o revisar estado del turno.
-- Operaciones ve un tablero de priorización para distinguir turnos normales, pendientes y atrasados.
-- El reemplazo prioriza cercanía, ETA y confiabilidad de la cuidadora.
-- La ficha de traspaso busca continuidad del cuidado, inspirada en prácticas de entrega de turno en salud.
+- La familia recibe información accionable: esperar, solicitar reemplazo, reportar no llegada, responder una rotación o completar la ficha si la cuidadora va tarde.
+- Operaciones ve un tablero de priorización para distinguir turnos normales, pendientes y atrasados, además de tabs de turnos activos, próximos y calendario.
+- El reemplazo prioriza cercanía, ETA, disponibilidad y confiabilidad de la cuidadora.
+- La cobertura puede ser completa o momentánea; si queda una franja sin cubrir, operaciones puede reasignar a la cuidadora original para el tramo restante.
+- La rotación entre cuidadoras exige aceptación de las partes involucradas antes de aplicarse, resguardando continuidad y consentimiento.
+- La ficha de traspaso busca continuidad del cuidado, inspirada en prácticas de entrega de turno en salud, y puede ser completada por la cuidadora o por la familia cuando el atraso afecta el inicio.
 
 ## Arquitectura sugerida para producción
 
@@ -139,7 +166,7 @@ API Gateway / Backend BFF
         +--> Servicio de turnos
         +--> Servicio de tracking y ETA
         +--> Servicio de alertas operacionales
-        +--> Servicio de reemplazos
+        +--> Servicio de reemplazos y rotaciones
         +--> Servicio de notificaciones
         +--> Servicio de fichas clínicas/operacionales
         |
@@ -171,7 +198,7 @@ Componentes recomendados:
 - **Backend BFF:** capa orientada a casos de uso de frontend, con autorización por rol.
 - **Servicio de tracking:** recibe ubicaciones periódicas, calcula ETA y corta el tracking al registrar llegada.
 - **Servicio de alertas:** transforma eventos de riesgo en acciones para operaciones y familia.
-- **Servicio de reemplazos:** rankea cuidadoras disponibles según ETA, distancia, disponibilidad, certificaciones y continuidad.
+- **Servicio de reemplazos y rotaciones:** rankea cuidadoras disponibles según ETA, distancia, disponibilidad, certificaciones y continuidad; también coordina propuestas de intercambio entre turnos.
 - **Base de datos relacional:** fuente transaccional para turnos, actores, fichas y auditoría.
 - **Cola de eventos:** desacopla notificaciones, cálculo de riesgo y procesos de auditoría.
 
@@ -270,6 +297,9 @@ CREATE TABLE replacement_requests (
   requested_by UUID REFERENCES users(id),
   status TEXT NOT NULL CHECK (status IN ('open', 'accepted', 'rejected', 'cancelled')),
   replacement_type TEXT NOT NULL CHECK (replacement_type IN ('full', 'momentary')),
+  assigned_caregiver_id UUID REFERENCES caregivers(id),
+  covered_until TIMESTAMPTZ,
+  original_reassigned BOOLEAN NOT NULL DEFAULT false,
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
@@ -282,6 +312,28 @@ CREATE TABLE replacement_candidates (
   reliability_score NUMERIC(4,3),
   ranking_score NUMERIC(8,3),
   accepted_at TIMESTAMPTZ
+);
+
+CREATE TABLE caregiver_rotation_proposals (
+  id UUID PRIMARY KEY,
+  at_risk_shift_id UUID NOT NULL REFERENCES shifts(id),
+  donor_shift_id UUID NOT NULL REFERENCES shifts(id),
+  delayed_caregiver_id UUID NOT NULL REFERENCES caregivers(id),
+  donor_caregiver_id UUID NOT NULL REFERENCES caregivers(id),
+  affected_family_id UUID NOT NULL REFERENCES families(id),
+  donor_family_id UUID NOT NULL REFERENCES families(id),
+  status TEXT NOT NULL CHECK (status IN ('proposed', 'accepted', 'rejected', 'applied')),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  resolved_at TIMESTAMPTZ
+);
+
+CREATE TABLE caregiver_rotation_decisions (
+  id UUID PRIMARY KEY,
+  proposal_id UUID NOT NULL REFERENCES caregiver_rotation_proposals(id),
+  role TEXT NOT NULL CHECK (role IN ('delayed_caregiver', 'donor_caregiver', 'affected_family', 'donor_family')),
+  decided_by UUID REFERENCES users(id),
+  decision TEXT NOT NULL CHECK (decision IN ('pending', 'accepted', 'rejected')),
+  decided_at TIMESTAMPTZ
 );
 
 CREATE TABLE handoff_records (
@@ -326,6 +378,7 @@ Relaciones principales:
 - Un turno puede tener múltiples eventos de ubicación hasta el check-in.
 - Un turno puede generar múltiples eventos de riesgo.
 - Un turno puede abrir una solicitud de reemplazo con varias candidatas rankeadas.
+- Un turno con riesgo puede abrir una propuesta de rotación entre dos cuidadoras, aplicable solo si las cuatro partes aceptan.
 - Las fichas de traspaso quedan asociadas al turno para historial de continuidad del cuidado.
 - Las notificaciones y eventos de auditoría permiten trazabilidad frente a decisiones sensibles.
 
