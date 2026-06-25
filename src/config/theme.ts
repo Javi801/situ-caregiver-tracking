@@ -113,7 +113,8 @@ export const SHIFT_STATE_ACCENT: Record<CaregiverShiftState, string> = {
   onTheWay: "border-cyan-300 bg-cyan-50",
   delayed: "border-amber-300 bg-amber-50",
   inProgress: "border-green-300 bg-green-50",
-  replacement: "border-amber-300 bg-amber-50",
+  replacementRequested: "border-amber-300 bg-amber-50",
+  replacementAssigned: "border-green-300 bg-green-50",
   cancelled: "border-red-300 bg-red-50",
   done: "border-slate-300 bg-slate-50",
 };
@@ -124,7 +125,8 @@ export const SHIFT_STATE_TEXT: Record<CaregiverShiftState, string> = {
   onTheWay: "text-cyan-800",
   delayed: "text-amber-800",
   inProgress: "text-green-800",
-  replacement: "text-amber-800",
+  replacementRequested: "text-amber-800",
+  replacementAssigned: "text-green-800",
   cancelled: "text-red-800",
   done: "text-slate-700",
 };

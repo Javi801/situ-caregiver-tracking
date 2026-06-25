@@ -19,9 +19,9 @@ describe("getCaregiverShiftState", () => {
     expect(getCaregiverShiftState("shift_started", false)).toBe("inProgress");
   });
 
-  it("reports replacement states", () => {
-    expect(getCaregiverShiftState("replacement_requested", false)).toBe("replacement");
-    expect(getCaregiverShiftState("replacement_assigned", false)).toBe("replacement");
+  it("separates a requested replacement (in progress) from an assigned one (confirmed)", () => {
+    expect(getCaregiverShiftState("replacement_requested", false)).toBe("replacementRequested");
+    expect(getCaregiverShiftState("replacement_assigned", false)).toBe("replacementAssigned");
   });
 
   it("reports cancelled when the shift was cancelled", () => {
