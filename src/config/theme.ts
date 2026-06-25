@@ -2,6 +2,7 @@ import type { BadgeVariant } from "@/config/status";
 import type { RiskLevel } from "@/types";
 import type { CaregiverShiftState } from "@/lib/shiftState";
 import type { OpsState } from "@/lib/opsState";
+import type { FamilyDecision } from "@/lib/familyDecision";
 
 /**
  * Single source of truth for color-bearing class strings.
@@ -145,4 +146,10 @@ export const OPS_STATE_TEXT: Record<OpsState, string> = {
   ok: "text-green-800",
   pending: "text-amber-800",
   late: "text-red-800",
+};
+
+/** Tag palettes for the family's delay decision on the operations board. */
+export const FAMILY_DECISION_CLASSES: Record<FamilyDecision, string> = {
+  waiting: "bg-slate-100 text-slate-700 border-slate-200",
+  requested: "bg-amber-100 text-amber-800 border-amber-200",
 };
