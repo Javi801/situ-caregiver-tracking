@@ -38,7 +38,7 @@ export const caregivers: Caregiver[] = [
     distanceKm: 9.4,
     etaMinutes: 33,
     certifications: ["Elderly care", "Mobility assistance"],
-    availableFrom: "12:00",
+    availableFrom: "08:00",
     availableUntil: "20:00",
   },
 ];
