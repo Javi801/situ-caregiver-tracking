@@ -1,0 +1,47 @@
+import type { Caregiver } from "@/types";
+
+export const caregivers: Caregiver[] = [
+  {
+    id: "cg-1",
+    name: "María González",
+    reliabilityScore: 0.96,
+    distanceKm: 3.2,
+    etaMinutes: 18,
+    certifications: ["Elderly care", "First aid"],
+  },
+  {
+    id: "cg-2",
+    name: "Camila Rojas",
+    reliabilityScore: 0.91,
+    distanceKm: 5.8,
+    etaMinutes: 24,
+    certifications: ["Elderly care", "Dementia support"],
+  },
+  {
+    id: "cg-3",
+    name: "Antonia Pérez",
+    reliabilityScore: 0.88,
+    distanceKm: 2.1,
+    etaMinutes: 14,
+    certifications: ["Elderly care"],
+  },
+  {
+    id: "cg-4",
+    name: "Daniela Soto",
+    reliabilityScore: 0.83,
+    distanceKm: 9.4,
+    etaMinutes: 33,
+    certifications: ["Elderly care", "Mobility assistance"],
+  },
+];
+
+export const PRIMARY_CAREGIVER_ID = "cg-1";
+
+export function getCaregiver(id: string): Caregiver | undefined {
+  return caregivers.find((caregiver) => caregiver.id === id);
+}
+
+/** Caregivers that can be offered as replacements (everyone but the primary). */
+export function getReplacementCandidates(excludeId: string): Caregiver[] {
+  return caregivers.filter((caregiver) => caregiver.id !== excludeId);
+}
