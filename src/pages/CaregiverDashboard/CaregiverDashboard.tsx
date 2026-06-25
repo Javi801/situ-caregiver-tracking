@@ -1,80 +1,72 @@
-import { useNavigate } from "react-router-dom";
-import { Home, User, Clock } from "lucide-react";
+import { useState } from "react";
 import { PageShell } from "@/components/layout/PageShell";
-import { Card, CardBody, CardFooter, CardHeader } from "@/components/ui/Card";
-import { Button } from "@/components/ui/Button";
-import { StatusBadge } from "@/components/ui/StatusBadge";
+import { ShiftListItem } from "@/components/cards/ShiftListItem";
+import { Tabs } from "@/components/ui/Tabs";
 import { COPY } from "@/content/copy";
-import { ROUTES } from "@/config/routes";
+import { shiftDetailPath } from "@/config/routes";
 import { useShift } from "@/hooks/shift-context";
-import { useToast } from "@/components/feedback/toast-context";
 import { getCaregiver, PRIMARY_CAREGIVER_ID } from "@/data/caregivers";
 import { getFamily } from "@/data/families";
-import { formatTime } from "@/lib/format";
+import { getCaregiverShifts, isActiveShift } from "@/data/shifts";
+import { isDelayed } from "@/lib/eta";
+import { getCaregiverShiftState } from "@/lib/shiftState";
 import { cn } from "@/lib/cn";
 import { TEXT } from "@/config/theme";
+import type { Shift } from "@/types";
+
+type ShiftTab = "upcoming" | "completed";
 
 export function CaregiverDashboard() {
-  const navigate = useNavigate();
-  const { shift, setStatus } = useShift();
-  const { notify } = useToast();
+  const { shift: activeShift, scheduledEtaMinutes } = useShift();
+  const [tab, setTab] = useState<ShiftTab>("upcoming");
 
-  const caregiver = getCaregiver(shift.caregiverId) ?? getCaregiver(PRIMARY_CAREGIVER_ID);
-  const family = getFamily(shift.familyId);
+  const caregiver = getCaregiver(PRIMARY_CAREGIVER_ID);
 
-  function handleStartTrip() {
-    setStatus("trip_started");
-    notify(COPY.caregiver.tripStartedToast);
-    navigate(ROUTES.tracking);
+  const activeDelayed = isDelayed(scheduledEtaMinutes, activeShift.etaMinutes);
+  const activeStateKey = getCaregiverShiftState(activeShift.status, activeDelayed);
+
+  // Resolve each shift's display status (the active one comes from live context).
+  const shifts = getCaregiverShifts(PRIMARY_CAREGIVER_ID).map((shift) =>
+    isActiveShift(shift.id) ? { ...shift, status: activeShift.status } : shift,
+  );
+
+  const completed = shifts.filter((shift) => shift.status === "completed");
+  const upcoming = shifts.filter((shift) => shift.status !== "completed");
+  const visible = tab === "completed" ? completed : upcoming;
+
+  function renderItem(shift: Shift) {
+    const active = isActiveShift(shift.id);
+    return (
+      <ShiftListItem
+        key={shift.id}
+        shift={shift}
+        href={shiftDetailPath(shift.id)}
+        title={getFamily(shift.familyId)?.name ?? ""}
+        isActive={active}
+        stateKey={active ? activeStateKey : undefined}
+      />
+    );
   }
 
   return (
-    <PageShell title={COPY.caregiver.title} subtitle={caregiver?.name}>
-      <Card>
-        <CardHeader title={family?.name ?? ""} description={family?.address} />
-        <CardBody className="space-y-3">
-          <DetailRow icon={<User className="h-4 w-4" />} label={COPY.caregiver.olderAdult}>
-            {family?.olderAdultName}
-          </DetailRow>
-          <DetailRow icon={<Home className="h-4 w-4" />} label={COPY.caregiver.address}>
-            {family?.address}
-          </DetailRow>
-          <DetailRow icon={<Clock className="h-4 w-4" />} label={COPY.caregiver.startTime}>
-            {formatTime(shift.startsAt)}
-          </DetailRow>
-          <div className="flex items-center gap-2 pt-1">
-            <span className={cn("text-sm", TEXT.muted)}>{COPY.caregiver.status}:</span>
-            <StatusBadge status={shift.status} />
-          </div>
-        </CardBody>
-        <CardFooter>
-          <Button size="lg" onClick={handleStartTrip}>
-            {COPY.caregiver.startTrip}
-          </Button>
-        </CardFooter>
-      </Card>
-    </PageShell>
-  );
-}
+    <PageShell title={COPY.caregiver.shiftsTitle} subtitle={caregiver?.name}>
+      <p className="mb-4 text-sm text-slate-500">{COPY.caregiver.shiftsSubtitle}</p>
 
-function DetailRow({
-  icon,
-  label,
-  children,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex items-start gap-3">
-      <span className={cn("mt-0.5", TEXT.subtle)} aria-hidden="true">
-        {icon}
-      </span>
-      <div>
-        <p className={cn("text-xs uppercase tracking-wide", TEXT.subtle)}>{label}</p>
-        <p className={cn("text-sm", TEXT.body)}>{children}</p>
-      </div>
-    </div>
+      <Tabs
+        className="mb-4"
+        value={tab}
+        onChange={(next) => setTab(next as ShiftTab)}
+        tabs={[
+          { value: "upcoming", label: COPY.caregiver.tabUpcoming },
+          { value: "completed", label: COPY.caregiver.tabCompleted },
+        ]}
+      />
+
+      {visible.length > 0 ? (
+        <div className="space-y-3">{visible.map(renderItem)}</div>
+      ) : (
+        <p className={cn("text-sm", TEXT.muted)}>{COPY.caregiver.noShifts}</p>
+      )}
+    </PageShell>
   );
 }
