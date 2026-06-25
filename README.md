@@ -94,19 +94,19 @@ El mockup está pensado para ser revisado como una demo guiada. Al abrir la apli
 
 Para probar el flujo principal:
 
-1. Entrar como **Caregiver**.
-2. Abrir el turno activo desde **Active & upcoming** y presionar **Start trip**.
-3. En **Trip in progress**, presionar **Share my location**. Se abre una ventana de control de demo con dos opciones: **Arriving on time**, que mantiene el turno en ruta y el ETA dentro de lo esperado, o **Running late**, que aumenta el ETA, marca el turno como atrasado y notifica a operaciones/familia.
-4. Alternativamente, presionar **I'm running late** para forzar el atraso sin abrir el diálogo de ubicación.
-5. Entrar como **Operations**. En el tab **Active**, abrir el turno atrasado para revisar ETA, riesgo, checklist de verificación, contacto con familia, recordatorio de ubicación y sugerencias de reemplazo.
-6. Entrar como **Family** y abrir el turno activo. La familia puede decidir **Wait**, pedir **Request replacement**, completar la ficha mientras espera o responder a una propuesta de rotación.
-7. Desde operaciones, entrar a **Manage replacement**. Ahí se puede asignar un reemplazo de turno completo, asignar un reemplazo momentáneo o proponer una **caregiver rotation** cuando ningún respaldo cubre todo el turno.
-8. Volver a **Caregiver** para responder una eventual rotación, registrar llegada en **Check in** y completar la ficha del turno.
+1. Entrar como **Cuidadora**.
+2. Abrir el turno activo desde **Activos y próximos** y presionar **Iniciar traslado**.
+3. En **Traslado en curso**, presionar **Compartir mi ubicación**. Se abre una ventana de control de demo con dos opciones: **Llegada a tiempo**, que mantiene el turno en ruta y el ETA dentro de lo esperado, o **Con atraso**, que aumenta el ETA, marca el turno como atrasado y notifica a operaciones/familia.
+4. Alternativamente, presionar **Voy atrasada** para forzar el atraso sin abrir el diálogo de ubicación.
+5. Entrar como **Operaciones**. En el tab **Activos**, abrir el turno atrasado para revisar ETA, riesgo, checklist de verificación, contacto con familia, recordatorio de ubicación y sugerencias de reemplazo.
+6. Entrar como **Familia** y abrir el turno activo. La familia puede decidir **Esperar**, pedir **Solicitar reemplazo**, completar la ficha mientras espera o responder a una propuesta de rotación.
+7. Desde operaciones, entrar a **Gestionar reemplazo**. Ahí se puede asignar un reemplazo de turno completo, asignar un reemplazo momentáneo o proponer una **rotación de cuidadoras** cuando ningún respaldo cubre todo el turno.
+8. Volver a **Cuidadora** para responder una eventual rotación, registrar llegada en **Registrar llegada** y completar la ficha del turno.
 
 En la esquina inferior izquierda hay dos controles de demo:
 
-- **Reset demo state:** vuelve el prototipo a su estado inicial.
-- **Simulate delay:** fuerza un atraso sobre el turno activo sin tener que recorrer todo el flujo.
+- **Reiniciar demo:** vuelve el prototipo a su estado inicial.
+- **Simular atraso:** fuerza un atraso sobre el turno activo sin tener que recorrer todo el flujo.
 
 Estos controles existen solo para facilitar la revisión del caso. En una implementación real, el atraso vendría de eventos como falta de confirmación de traslado, ubicación periódica, ETA actualizado o ausencia de check-in dentro de la ventana esperada.
 
@@ -114,8 +114,8 @@ Estos controles existen solo para facilitar la revisión del caso. En una implem
 
 Para revisar el caso completo, se recomienda partir en `/`, elegir un actor y recorrer el flujo desde cada perspectiva:
 
-- **Cuidadora:** entrar a `/caregiver`, revisar tabs de turnos activos/próximos y completados, abrir el turno del día, iniciar traslado en `/tracking`, usar el diálogo de **Share my location**, registrar llegada en `/checkin`, responder rotaciones si aparecen y completar la ficha en `/handoff`.
-- **Operaciones:** entrar a `/operations`, alternar entre **Active**, **Upcoming** y **Calendar**, abrir un turno, revisar riesgo/checklist, contactar familia, enviar recordatorio, gestionar reemplazo en `/operations/shift/:shiftId/replacement` o proponer rotación en `/operations/shift/:shiftId/swap`.
+- **Cuidadora:** entrar a `/caregiver`, revisar tabs de turnos activos/próximos y completados, abrir el turno del día, iniciar traslado en `/tracking`, usar el diálogo de **Compartir mi ubicación**, registrar llegada en `/checkin`, responder rotaciones si aparecen y completar la ficha en `/handoff`.
+- **Operaciones:** entrar a `/operations`, alternar entre **Activos**, **Próximos** y **Calendario**, abrir un turno, revisar riesgo/checklist, contactar familia, enviar recordatorio, gestionar reemplazo en `/operations/shift/:shiftId/replacement` o proponer rotación en `/operations/shift/:shiftId/swap`.
 - **Familia:** entrar a `/family`, abrir el turno activo, revisar ETA y estado, reportar no llegada si está dentro de la ventana previa al turno, decidir si espera o solicita reemplazo, responder una rotación y consultar el historial en `/family/records`.
 
 Esta separación permite evaluar el mismo incidente desde los tres puntos de vista relevantes: quien presta el servicio, quien coordina la operación y quien recibe el cuidado.
