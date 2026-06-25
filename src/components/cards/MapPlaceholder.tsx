@@ -1,6 +1,7 @@
 import { Navigation } from "lucide-react";
 import { COPY } from "@/content/copy";
 import { cn } from "@/lib/cn";
+import { LOCATION_UPDATE_INTERVAL_MINUTES } from "@/config/constants";
 import { BORDER, ICON, MAP_PLACEHOLDER, TEXT } from "@/config/theme";
 
 const { gridColor } = MAP_PLACEHOLDER;
@@ -25,7 +26,9 @@ export function MapPlaceholder() {
       />
       <div className={cn("relative flex flex-col items-center gap-2", TEXT.muted)}>
         <Navigation className={cn("h-6 w-6", ICON.accent)} aria-hidden="true" />
-        <p className="max-w-xs text-center text-sm">{COPY.tracking.updateNote}</p>
+        <p className="max-w-xs text-center text-sm">
+          {COPY.tracking.updateNote(LOCATION_UPDATE_INTERVAL_MINUTES)}
+        </p>
       </div>
     </div>
   );

@@ -1,5 +1,7 @@
 import type { BadgeVariant } from "@/config/status";
 import type { RiskLevel } from "@/types";
+import type { CaregiverShiftState } from "@/lib/shiftState";
+import type { OpsState } from "@/lib/opsState";
 
 /**
  * Single source of truth for color-bearing class strings.
@@ -46,6 +48,7 @@ export const FEEDBACK = {
   warning: "border-amber-200 bg-amber-50 text-amber-800",
   success: "border-green-200 bg-green-50 text-green-800",
   info: "border-cyan-200 bg-cyan-50 text-cyan-800",
+  danger: "border-red-200 bg-red-50 text-red-800",
 } as const;
 
 /** Standalone icon accents. */
@@ -99,4 +102,47 @@ export const RISK_LABEL: Record<RiskLevel, string> = {
   low: "Low risk",
   medium: "Medium risk",
   high: "High risk",
+};
+
+/** Highlight palette for the active shift card, by caregiver-facing state. */
+export const SHIFT_STATE_ACCENT: Record<CaregiverShiftState, string> = {
+  start: "border-cyan-300 bg-cyan-50",
+  onTheWay: "border-cyan-300 bg-cyan-50",
+  delayed: "border-amber-300 bg-amber-50",
+  inProgress: "border-green-300 bg-green-50",
+  replacement: "border-amber-300 bg-amber-50",
+  cancelled: "border-red-300 bg-red-50",
+  done: "border-slate-300 bg-slate-50",
+};
+
+/** Text tone matching the active shift state accent. */
+export const SHIFT_STATE_TEXT: Record<CaregiverShiftState, string> = {
+  start: "text-cyan-800",
+  onTheWay: "text-cyan-800",
+  delayed: "text-amber-800",
+  inProgress: "text-green-800",
+  replacement: "text-amber-800",
+  cancelled: "text-red-800",
+  done: "text-slate-700",
+};
+
+/** Operations triage palettes (left accent + surface) by ops state. */
+export const OPS_STATE_ACCENT: Record<OpsState, string> = {
+  ok: "border-l-4 border-l-green-500 bg-green-50",
+  pending: "border-l-4 border-l-amber-500 bg-amber-50",
+  late: "border-l-4 border-l-red-500 bg-red-50",
+};
+
+/** Operations triage dot colors. */
+export const OPS_STATE_DOT: Record<OpsState, string> = {
+  ok: "bg-green-500",
+  pending: "bg-amber-500",
+  late: "bg-red-500",
+};
+
+/** Operations triage text tones. */
+export const OPS_STATE_TEXT: Record<OpsState, string> = {
+  ok: "text-green-800",
+  pending: "text-amber-800",
+  late: "text-red-800",
 };

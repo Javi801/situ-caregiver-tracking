@@ -26,7 +26,7 @@ export function ReplacementCard({ caregiver, onAssign, actionLabel }: Replacemen
         </span>
         <div>
           <p className={cn("font-medium", TEXT.heading)}>{caregiver.name}</p>
-          <p className={cn("text-sm", TEXT.muted)}>{matchNote}</p>
+          <p className={cn("mt-1 text-sm", TEXT.muted)}>{matchNote}</p>
           <p className={cn("mt-1 text-xs", TEXT.subtle)}>
             {etaLabel} · {distanceLabel} · {reliabilityLabel}
           </p>

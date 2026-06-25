@@ -1,7 +1,34 @@
 import { createContext, useContext } from "react";
-import type { Shift, ShiftStatus } from "@/types";
+import type {
+  MedicalRecord,
+  RecordAuthor,
+  ReplacementType,
+  Shift,
+  ShiftStatus,
+  HandoffReport,
+} from "@/types";
+
+/** A replacement assigned to a shift by operations. */
+export interface ReplacementAssignment {
+  caregiverId: string;
+  type: ReplacementType;
+  /** "HH:mm" up to which the replacement covers the shift. */
+  coveredUntil: string;
+  /** Whether the original caregiver was reassigned to the remaining hours. */
+  originalReassigned: boolean;
+}
+
+/** Mutable runtime state layered on top of a shift's static definition. */
+export interface ShiftRuntimeState {
+  status: ShiftStatus;
+  etaMinutes: number;
+  record: MedicalRecord | null;
+  familyWaitingEtaMinutes: number | null;
+  replacement: ReplacementAssignment | null;
+}
 
 export interface ShiftContextValue {
+  // --- Active shift (caregiver & family views) ---
   shift: Shift;
   /** The originally scheduled ETA, used as the baseline for delay/risk calculations. */
   scheduledEtaMinutes: number;
@@ -9,6 +36,25 @@ export interface ShiftContextValue {
   setEtaMinutes: (etaMinutes: number) => void;
   assignedReplacementId: string | null;
   assignReplacement: (caregiverId: string) => void;
+  familyWaitingEtaMinutes: number | null;
+  markFamilyWaiting: (atEtaMinutes: number) => void;
+  hasCheckedIn: boolean;
+  record: MedicalRecord | null;
+  saveRecord: (report: HandoffReport, recordedBy: RecordAuthor) => void;
+
+  // --- Any shift (operations views) ---
+  getShiftState: (shiftId: string) => ShiftRuntimeState;
+  /** A shift's static definition merged with its live status/ETA. */
+  getEffectiveShift: (shiftId: string) => Shift | undefined;
+  opsAssignReplacement: (
+    shiftId: string,
+    caregiverId: string,
+    type: ReplacementType,
+    coveredUntil: string,
+  ) => void;
+  /** Reassign the original caregiver to the remaining (uncovered) hours. */
+  opsReassignOriginal: (shiftId: string) => void;
+
   reset: () => void;
 }
 

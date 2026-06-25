@@ -9,3 +9,9 @@ export const SIMULATED_DELAY_MINUTES = 25;
 /** Risk thresholds expressed in minutes of delay over the scheduled ETA. */
 export const MEDIUM_RISK_DELAY_MINUTES = 10;
 export const HIGH_RISK_DELAY_MINUTES = 20;
+
+/** How many upcoming shifts the family dashboard shows. */
+export const FAMILY_UPCOMING_SHIFTS_LIMIT = 2;
+
+/** How long a toast notification stays on screen before auto-dismissing. */
+export const TOAST_DURATION_MS = 4000;
