@@ -3,6 +3,7 @@ import type { RiskLevel } from "@/types";
 import type { CaregiverShiftState } from "@/lib/shiftState";
 import type { OpsState } from "@/lib/opsState";
 import type { FamilyDecision } from "@/lib/familyDecision";
+import type { FamilyShiftState } from "@/lib/familyShiftState";
 
 /**
  * Single source of truth for color-bearing class strings.
@@ -156,4 +157,13 @@ export const OPS_STATE_TEXT: Record<OpsState, string> = {
 export const FAMILY_DECISION_CLASSES: Record<FamilyDecision, string> = {
   waiting: "bg-slate-100 text-slate-700 border-slate-200",
   requested: "bg-amber-100 text-amber-800 border-amber-200",
+};
+
+/** Status-banner palettes for the family's live shift card, by visual state. */
+export const FAMILY_SHIFT_STATE_BANNER: Record<FamilyShiftState, string> = {
+  ok: FEEDBACK.success,
+  late: FEEDBACK.warning,
+  replacementRequested: FEEDBACK.warning,
+  replacementInProgress: FEEDBACK.info,
+  replacementAccepted: FEEDBACK.success,
 };

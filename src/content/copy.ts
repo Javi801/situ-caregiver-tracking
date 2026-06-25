@@ -259,6 +259,8 @@ export const COPY = {
     requestToast: "Replacement requested. Operations is finding a match.",
     replacementRequestedNote:
       "Replacement requested. We've notified operations — you'll be updated as soon as a caregiver is assigned.",
+    rotationInProgressMessage:
+      "A caregiver rotation is in progress. We're waiting for everyone to confirm the change.",
     fillRecord: "Fill medical record",
     fillRecordNote: "The caregiver is running late. You can fill in the medical record now.",
     reportNotArrived: "Report caregiver not arrived",
