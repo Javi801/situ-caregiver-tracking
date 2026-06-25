@@ -49,6 +49,9 @@ Thumbs.db
 # TypeScript build info
 *.tsbuildinfo
 
+# TypeScript declaration files emitted from config (tsc -b composite project)
+vite.config.d.ts
+
 # Cache
 .eslintcache
 .cache/
