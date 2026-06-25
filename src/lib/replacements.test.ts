@@ -9,6 +9,8 @@ const fast: Caregiver = {
   distanceKm: 2,
   etaMinutes: 12,
   certifications: [],
+  availableFrom: "08:00",
+  availableUntil: "18:00",
 };
 
 const slow: Caregiver = {
@@ -18,6 +20,8 @@ const slow: Caregiver = {
   distanceKm: 10,
   etaMinutes: 35,
   certifications: [],
+  availableFrom: "10:00",
+  availableUntil: "14:00",
 };
 
 describe("scoreCandidate", () => {

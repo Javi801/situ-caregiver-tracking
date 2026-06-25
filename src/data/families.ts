@@ -15,6 +15,20 @@ export const families: Family[] = [
     olderAdultName: "Doña Elena Muñoz",
     notes: "Mild dementia. Responds well to familiar faces.",
   },
+  {
+    id: "fam-3",
+    name: "Familia Castro",
+    address: "Pasaje Las Acacias 89, La Reina",
+    olderAdultName: "Don Jorge Castro",
+    notes: "Needs help with morning medication.",
+  },
+  {
+    id: "fam-4",
+    name: "Familia Vega",
+    address: "Av. Macul 4521, Macul",
+    olderAdultName: "Doña Rosa Vega",
+    notes: "Limited mobility. Requires punctual arrivals.",
+  },
 ];
 
 export const PRIMARY_FAMILY_ID = "fam-1";

@@ -4,11 +4,15 @@ export type ShiftStatus =
   | "delay_detected"
   | "replacement_requested"
   | "replacement_assigned"
+  | "cancelled"
   | "arrived"
   | "shift_started"
   | "completed";
 
 export type RiskLevel = "low" | "medium" | "high";
+
+/** Scope of a replacement: covers the whole shift or only part of it. */
+export type ReplacementType = "full" | "momentary";
 
 export interface Caregiver {
   id: string;
@@ -17,6 +21,9 @@ export interface Caregiver {
   distanceKm: number;
   etaMinutes: number;
   certifications: string[];
+  /** Availability window for the day, as "HH:mm" strings. */
+  availableFrom: string;
+  availableUntil: string;
 }
 
 export interface Family {
@@ -32,8 +39,12 @@ export interface Shift {
   caregiverId: string;
   familyId: string;
   startsAt: string;
+  endsAt: string;
   status: ShiftStatus;
+  /** Current estimated arrival in minutes. */
   etaMinutes: number;
+  /** Originally scheduled arrival in minutes; baseline for delay/risk. */
+  scheduledEtaMinutes: number;
 }
 
 export interface HandoffReport {
@@ -42,4 +53,15 @@ export interface HandoffReport {
   medicationChanges: string;
   recentEvents: string;
   notes: string;
+}
+
+/** Who completed a medical record for a shift. */
+export type RecordAuthor = "caregiver" | "family";
+
+/** A handoff report tied to a shift, with provenance metadata. */
+export interface MedicalRecord extends HandoffReport {
+  id: string;
+  shiftId: string;
+  recordedAt: string;
+  recordedBy: RecordAuthor;
 }
