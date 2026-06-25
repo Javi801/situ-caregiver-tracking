@@ -48,7 +48,7 @@ describe("OperationsReplacement", () => {
       STORAGE_KEY,
       JSON.stringify({
         "shift-ops-red": {
-          status: "cancelled",
+          status: "replacement_assigned",
           etaMinutes: 14,
           record: null,
           familyWaitingEtaMinutes: null,

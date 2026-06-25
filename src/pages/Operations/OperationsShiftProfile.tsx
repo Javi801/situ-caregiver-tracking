@@ -8,8 +8,9 @@ import { ETAWidget } from "@/components/cards/ETAWidget";
 import { RiskBanner } from "@/components/feedback/RiskBanner";
 import { ReplacementCard } from "@/components/cards/ReplacementCard";
 import { VerificationChecklist } from "@/components/operations/VerificationChecklist";
+import { SwapStatusSummary } from "@/components/swap/SwapStatusSummary";
 import { COPY } from "@/content/copy";
-import { ROUTES, operationsReplacementPath } from "@/config/routes";
+import { ROUTES, operationsReplacementPath, operationsSwapPath } from "@/config/routes";
 import { useShift } from "@/hooks/shift-context";
 import { useToast } from "@/components/feedback/toast-context";
 import { getCaregiver, getReplacementCandidates } from "@/data/caregivers";
@@ -17,6 +18,7 @@ import { getFamily } from "@/data/families";
 import { isDelayed } from "@/lib/eta";
 import { getRiskLevel } from "@/lib/risk";
 import { getOpsState } from "@/lib/opsState";
+import { isSwapOpen } from "@/lib/swap";
 import { rankReplacements } from "@/lib/replacements";
 import { cn } from "@/lib/cn";
 import { FEEDBACK, TEXT } from "@/config/theme";
@@ -24,7 +26,7 @@ import { FEEDBACK, TEXT } from "@/config/theme";
 export function OperationsShiftProfile() {
   const { shiftId = "" } = useParams();
   const navigate = useNavigate();
-  const { getEffectiveShift, getShiftState } = useShift();
+  const { getEffectiveShift, getShiftState, getSwapForShift } = useShift();
   const { notify } = useToast();
 
   const shift = getEffectiveShift(shiftId);
@@ -56,6 +58,8 @@ export function OperationsShiftProfile() {
   const isLate = opsState === "late";
   const isPending = opsState === "pending";
   const hasReplacement = state.replacement !== null;
+  const swap = getSwapForShift(shiftId);
+  const activeSwap = swap && swap.shiftAId === shiftId && isSwapOpen(swap.status) ? swap : null;
 
   return (
     <PageShell title={family?.name ?? COPY.operations.title} subtitle={caregiver?.name}>
@@ -73,6 +77,13 @@ export function OperationsShiftProfile() {
           <CardBody className="space-y-4">
             <ETAWidget etaMinutes={shift.etaMinutes} distanceKm={caregiver?.distanceKm} />
             <RiskBanner level={riskLevel} />
+
+            {activeSwap ? (
+              <SwapStatusSummary
+                proposal={activeSwap}
+                onClick={() => navigate(operationsSwapPath(shiftId))}
+              />
+            ) : null}
 
             {isPending ? (
               <div

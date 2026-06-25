@@ -265,16 +265,6 @@ export const COPY = {
     },
   },
   replacement: {
-    title: "Replacement match",
-    suggested: "Suggested caregiver",
-    distance: "Distance",
-    eta: "ETA",
-    matchNotes: "Match notes",
-    accept: "Accept replacement",
-    reject: "Reject replacement",
-    acceptToast: "Replacement accepted. The new caregiver is on the way.",
-    rejectToast: "Replacement rejected. Looking for another match.",
-    note: "The replacement covers the full shift. The original shift will be cancelled.",
     /** Human-readable match summary, composed from already-formatted values. */
     matchNote: (etaLabel: string, distanceLabel: string, reliabilityLabel: string): string =>
       `Arrives in ${etaLabel}, ${distanceLabel} away, ${reliabilityLabel} reliability.`,
