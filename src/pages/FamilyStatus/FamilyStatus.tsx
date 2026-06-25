@@ -4,6 +4,7 @@ import { PageShell } from "@/components/layout/PageShell";
 import { Card, CardBody, CardFooter, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { ETAWidget } from "@/components/cards/ETAWidget";
+import { ActorSwapBanner } from "@/components/swap/ActorSwapBanner";
 import { COPY } from "@/content/copy";
 import { ROUTES } from "@/config/routes";
 import { HANDOFF_WINDOW_MINUTES } from "@/config/constants";
@@ -69,6 +70,8 @@ export function FamilyStatus() {
             <Info className="mt-0.5 h-4 w-4" aria-hidden="true" />
             <p>{delayed ? COPY.family.delayMessage : COPY.family.onTimeMessage}</p>
           </div>
+
+          <ActorSwapBanner shiftId={shift.id} viewer="family" />
 
           {assignedReplacementId ? (
             <div
