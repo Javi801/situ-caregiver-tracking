@@ -30,6 +30,8 @@ export const SURFACE = {
   card: "bg-white",
   panel: "bg-slate-50",
   accentSoft: "bg-cyan-50",
+  /** Dimmed backdrop behind modal dialogs. */
+  scrim: "bg-slate-900/40",
 } as const;
 
 /** Borders. */

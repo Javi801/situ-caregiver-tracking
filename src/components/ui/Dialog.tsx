@@ -37,7 +37,7 @@ export function Dialog({ open, onClose, title, description, children }: DialogPr
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
-        className="absolute inset-0 bg-slate-900/40"
+        className={cn("absolute inset-0", SURFACE.scrim)}
         aria-hidden="true"
         onClick={onClose}
       />
