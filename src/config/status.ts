@@ -13,6 +13,7 @@ export const STATUS: Record<ShiftStatus, StatusDefinition> = {
   delay_detected: { label: "Delay detected", variant: "warning" },
   replacement_requested: { label: "Replacement requested", variant: "warning" },
   replacement_assigned: { label: "Replacement assigned", variant: "healthcare" },
+  cancelled: { label: "Cancelled due to delay", variant: "danger" },
   arrived: { label: "Arrived", variant: "success" },
   shift_started: { label: "Shift started", variant: "success" },
   completed: { label: "Completed", variant: "success" },
