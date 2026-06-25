@@ -5,8 +5,15 @@ import { COPY } from "@/content/copy";
 import { operationsShiftPath } from "@/config/routes";
 import { formatTime } from "@/lib/format";
 import { cn } from "@/lib/cn";
-import { OPS_STATE_ACCENT, OPS_STATE_DOT, OPS_STATE_TEXT, TEXT } from "@/config/theme";
+import {
+  FAMILY_DECISION_CLASSES,
+  OPS_STATE_ACCENT,
+  OPS_STATE_DOT,
+  OPS_STATE_TEXT,
+  TEXT,
+} from "@/config/theme";
 import type { OpsState } from "@/lib/opsState";
+import type { FamilyDecision } from "@/lib/familyDecision";
 import type { Shift } from "@/types";
 
 interface OpsShiftListItemProps {
@@ -14,10 +21,17 @@ interface OpsShiftListItemProps {
   opsState: OpsState;
   caregiverName: string;
   familyName: string;
+  familyDecision?: FamilyDecision | null;
 }
 
 /** Operations board row, colored by triage state, linking to the shift profile. */
-export function OpsShiftListItem({ shift, opsState, caregiverName, familyName }: OpsShiftListItemProps) {
+export function OpsShiftListItem({
+  shift,
+  opsState,
+  caregiverName,
+  familyName,
+  familyDecision = null,
+}: OpsShiftListItemProps) {
   return (
     <Link to={operationsShiftPath(shift.id)} className="block focus-visible:outline-none">
       <Card className={cn("transition-shadow hover:shadow-md", OPS_STATE_ACCENT[opsState])}>
@@ -27,7 +41,19 @@ export function OpsShiftListItem({ shift, opsState, caregiverName, familyName }:
             aria-hidden="true"
           />
           <div className="flex-1">
-            <p className={cn("font-semibold", TEXT.heading)}>{familyName}</p>
+            <div className="flex flex-wrap items-center gap-2">
+              <p className={cn("font-semibold", TEXT.heading)}>{familyName}</p>
+              {familyDecision ? (
+                <span
+                  className={cn(
+                    "rounded-full border px-2 py-0.5 text-xs font-medium",
+                    FAMILY_DECISION_CLASSES[familyDecision],
+                  )}
+                >
+                  {COPY.operations.familyDecision[familyDecision]}
+                </span>
+              ) : null}
+            </div>
             <p className={cn("text-sm", TEXT.muted)}>{caregiverName}</p>
             <p className={cn("mt-1 text-sm font-medium", OPS_STATE_TEXT[opsState])}>
               {COPY.operations.stateLabel[opsState]} · {formatTime(shift.startsAt)}

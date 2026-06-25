@@ -1,10 +1,11 @@
 import { useNavigate, useParams } from "react-router-dom";
-import { CalendarClock, Clock4, User } from "lucide-react";
+import { CalendarClock, Clock4, Repeat, User } from "lucide-react";
 import { PageShell } from "@/components/layout/PageShell";
-import { Card, CardBody, CardHeader } from "@/components/ui/Card";
+import { Card, CardBody, CardFooter, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { COPY } from "@/content/copy";
-import { ROUTES, operationsShiftPath } from "@/config/routes";
+import { ROUTES, operationsShiftPath, operationsSwapPath } from "@/config/routes";
+import { isSwapOpen } from "@/lib/swap";
 import { useShift } from "@/hooks/shift-context";
 import { useToast } from "@/components/feedback/toast-context";
 import { getCaregiver, getReplacementCandidates } from "@/data/caregivers";
@@ -19,7 +20,8 @@ import type { Caregiver, Shift } from "@/types";
 export function OperationsReplacement() {
   const { shiftId = "" } = useParams();
   const navigate = useNavigate();
-  const { getEffectiveShift, getShiftState, opsAssignReplacement, opsReassignOriginal } = useShift();
+  const { getEffectiveShift, getShiftState, opsAssignReplacement, opsReassignOriginal, getSwapForShift } =
+    useShift();
   const { notify } = useToast();
 
   const shift = getEffectiveShift(shiftId);
@@ -42,6 +44,8 @@ export function OperationsReplacement() {
   const family = getFamily(shift.familyId);
   const window = shiftWindow(shift);
   const candidates = rankReplacements(getReplacementCandidates(shift.caregiverId));
+  const swap = getSwapForShift(shiftId);
+  const activeSwap = swap && swap.shiftAId === shiftId && isSwapOpen(swap.status) ? swap : null;
 
   function handleAssignFull(candidate: Caregiver) {
     opsAssignReplacement(shiftId, candidate.id, "full", window.end);
@@ -87,26 +91,45 @@ export function OperationsReplacement() {
             onReassignOriginal={handleReassignOriginal}
           />
         ) : (
-          <Card>
-            <CardHeader title={COPY.operations.suggestions} />
-            <CardBody className="space-y-3">
-              {candidates.length > 0 ? (
-                candidates.map((candidate) => (
-                  <CandidateCard
-                    key={candidate.id}
-                    candidate={candidate}
-                    shift={shift}
-                    onAssignFull={() => handleAssignFull(candidate)}
-                    onAssignMomentary={(coveredUntil) =>
-                      handleAssignMomentary(candidate, coveredUntil)
-                    }
-                  />
-                ))
-              ) : (
-                <p className={cn("text-sm", TEXT.muted)}>{COPY.operationsReplacement.noCandidates}</p>
-              )}
-            </CardBody>
-          </Card>
+          <>
+            <Card>
+              <CardHeader title={COPY.operations.suggestions} />
+              <CardBody className="space-y-3">
+                {candidates.length > 0 ? (
+                  candidates.map((candidate) => (
+                    <CandidateCard
+                      key={candidate.id}
+                      candidate={candidate}
+                      shift={shift}
+                      onAssignFull={() => handleAssignFull(candidate)}
+                      onAssignMomentary={(coveredUntil) =>
+                        handleAssignMomentary(candidate, coveredUntil)
+                      }
+                    />
+                  ))
+                ) : (
+                  <p className={cn("text-sm", TEXT.muted)}>{COPY.operationsReplacement.noCandidates}</p>
+                )}
+              </CardBody>
+            </Card>
+
+            <Card>
+              <CardHeader title={COPY.operationsSwap.title} />
+              <CardBody>
+                {activeSwap ? (
+                  <p className={cn("text-sm", TEXT.body)}>{COPY.operationsReplacement.rotationInProgress}</p>
+                ) : (
+                  <p className={cn("text-sm", TEXT.muted)}>{COPY.operationsReplacement.proposeRotationNote}</p>
+                )}
+              </CardBody>
+              <CardFooter>
+                <Button variant="secondary" onClick={() => navigate(operationsSwapPath(shiftId))}>
+                  <Repeat className="h-4 w-4" aria-hidden="true" />
+                  {activeSwap ? COPY.operationsReplacement.viewRotation : COPY.operationsReplacement.proposeRotation}
+                </Button>
+              </CardFooter>
+            </Card>
+          </>
         )}
 
         <Button variant="secondary" onClick={() => navigate(operationsShiftPath(shiftId))}>

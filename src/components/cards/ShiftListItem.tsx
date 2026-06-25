@@ -5,7 +5,7 @@ import { StatusBadge } from "@/components/ui/StatusBadge";
 import { COPY } from "@/content/copy";
 import { formatDate, formatTime } from "@/lib/format";
 import { cn } from "@/lib/cn";
-import { BORDER, RING, SHIFT_STATE_ACCENT, SHIFT_STATE_TEXT, TEXT } from "@/config/theme";
+import { BORDER, RING, SHIFT_STATE_ACCENT, SHIFT_STATE_TEXT, SURFACE, TEXT } from "@/config/theme";
 import type { CaregiverShiftState } from "@/lib/shiftState";
 import type { Shift } from "@/types";
 
@@ -42,7 +42,7 @@ export function ShiftListItem({
       >
         <CardBody className="flex items-center gap-4">
           <span
-            className={cn("rounded-lg p-3", isActive ? "bg-white" : "bg-slate-50", TEXT.accent)}
+            className={cn("rounded-lg p-3", isActive ? SURFACE.card : SURFACE.panel, TEXT.accent)}
             aria-hidden="true"
           >
             <CalendarClock className="h-5 w-5" />

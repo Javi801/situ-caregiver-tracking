@@ -1,8 +1,18 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
-import type { HandoffReport, RecordAuthor, ReplacementType, Shift, ShiftStatus } from "@/types";
+import type {
+  HandoffReport,
+  RecordAuthor,
+  ReplacementType,
+  Shift,
+  ShiftStatus,
+  SwapPartyDecision,
+  SwapPartyRole,
+  SwapProposal,
+} from "@/types";
 import { ACTIVE_SHIFT_ID, getActiveShift, getShift, shifts } from "@/data/shifts";
 import { getCaregiver } from "@/data/caregivers";
 import { fromMinutes, toMinutes } from "@/lib/schedule";
+import { deriveSwapStatus, proposedSwapDecisions } from "@/lib/swap";
 import {
   ShiftContext,
   type ShiftContextValue,
@@ -10,6 +20,7 @@ import {
 } from "@/hooks/shift-context";
 
 const STORAGE_KEY = "situ.shiftStates.v2";
+const SWAP_STORAGE_KEY = "situ.swapProposals.v1";
 
 /** Statuses in which the caregiver is considered to have checked in (arrived). */
 const CHECKED_IN_STATUSES: ShiftStatus[] = ["arrived", "shift_started", "completed"];
@@ -47,6 +58,23 @@ function persist(states: StatesMap): void {
   }
 }
 
+function loadPersistedSwaps(): SwapProposal[] {
+  try {
+    const raw = window.localStorage.getItem(SWAP_STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as SwapProposal[]) : [];
+  } catch {
+    return [];
+  }
+}
+
+function persistSwaps(proposals: SwapProposal[]): void {
+  try {
+    window.localStorage.setItem(SWAP_STORAGE_KEY, JSON.stringify(proposals));
+  } catch {
+    // Ignore storage failures.
+  }
+}
+
 export function ShiftProvider({ children }: { children: ReactNode }) {
   const baselineActive = useMemo(getActiveShift, []);
 
@@ -57,9 +85,15 @@ export function ShiftProvider({ children }: { children: ReactNode }) {
     return persisted ? { ...initial, ...persisted } : initial;
   });
 
+  const [swapProposals, setSwapProposals] = useState<SwapProposal[]>(loadPersistedSwaps);
+
   useEffect(() => {
     persist(states);
   }, [states]);
+
+  useEffect(() => {
+    persistSwaps(swapProposals);
+  }, [swapProposals]);
 
   const updateState = useCallback((shiftId: string, partial: Partial<ShiftRuntimeState>) => {
     setStates((current) => ({
@@ -99,8 +133,10 @@ export function ShiftProvider({ children }: { children: ReactNode }) {
         ...current,
         [shiftId]: {
           ...current[shiftId],
-          // The original caregiver is fully replaced by default.
-          status: "cancelled",
+          // A momentary replacement keeps the shift active (covered by the
+          // replacement, then the original returns); a full replacement
+          // cancels the original assignment.
+          status: type === "momentary" ? "replacement_assigned" : "cancelled",
           etaMinutes: caregiver?.etaMinutes ?? current[shiftId].etaMinutes,
           replacement: { caregiverId, type, coveredUntil, originalReassigned: false },
         },
@@ -122,6 +158,116 @@ export function ShiftProvider({ children }: { children: ReactNode }) {
           replacement: { ...state.replacement, originalReassigned: true },
         },
       };
+    });
+  }, []);
+
+  // --- Caregiver rotation (swap) ---
+  const getSwapById = useCallback(
+    (proposalId: string): SwapProposal | null =>
+      swapProposals.find((proposal) => proposal.id === proposalId) ?? null,
+    [swapProposals],
+  );
+
+  const getSwapForShift = useCallback(
+    (shiftId: string): SwapProposal | null =>
+      swapProposals.find(
+        (proposal) => proposal.shiftAId === shiftId || proposal.shiftBId === shiftId,
+      ) ?? null,
+    [swapProposals],
+  );
+
+  const proposeSwap = useCallback((shiftAId: string, shiftBId: string): string | null => {
+    const shiftA = getShift(shiftAId);
+    const shiftB = getShift(shiftBId);
+    if (!shiftA || !shiftB) {
+      return null;
+    }
+    const id = `swap-${shiftAId}-${shiftBId}-${new Date().toISOString()}`;
+    const proposal: SwapProposal = {
+      id,
+      shiftAId,
+      shiftBId,
+      caregiverAId: shiftA.caregiverId,
+      caregiverBId: shiftB.caregiverId,
+      familyAId: shiftA.familyId,
+      familyBId: shiftB.familyId,
+      decisions: proposedSwapDecisions(),
+      status: "proposed",
+      createdAt: new Date().toISOString(),
+      resolvedAt: null,
+    };
+    // Newest first; a fresh proposal supersedes any open one for the same shift.
+    setSwapProposals((current) => [proposal, ...current]);
+    return id;
+  }, []);
+
+  const setSwapDecision = useCallback(
+    (proposalId: string, role: SwapPartyRole, decision: SwapPartyDecision) => {
+      setSwapProposals((current) =>
+        current.map((proposal) => {
+          if (proposal.id !== proposalId) {
+            return proposal;
+          }
+          const decisions = { ...proposal.decisions, [role]: decision };
+          const derived = deriveSwapStatus(decisions);
+          // "accepted" stays pending an explicit operator apply; only a
+          // rejection resolves the proposal here.
+          return {
+            ...proposal,
+            decisions,
+            status: derived,
+            resolvedAt: derived === "rejected" ? new Date().toISOString() : proposal.resolvedAt,
+          };
+        }),
+      );
+    },
+    [],
+  );
+
+  const applySwap = useCallback((proposalId: string) => {
+    setSwapProposals((currentProposals) => {
+      const proposal = currentProposals.find((item) => item.id === proposalId);
+      if (!proposal || proposal.status !== "accepted") {
+        return currentProposals;
+      }
+      const shiftA = getShift(proposal.shiftAId);
+      const shiftB = getShift(proposal.shiftBId);
+      if (!shiftA || !shiftB) {
+        return currentProposals;
+      }
+      const caregiverB = getCaregiver(proposal.caregiverBId);
+      const caregiverA = getCaregiver(proposal.caregiverAId);
+      // Reassign each caregiver to the other shift, keeping both shifts active.
+      setStates((current) => ({
+        ...current,
+        [proposal.shiftAId]: {
+          ...current[proposal.shiftAId],
+          status: "replacement_assigned",
+          etaMinutes: caregiverB?.etaMinutes ?? current[proposal.shiftAId].etaMinutes,
+          replacement: {
+            caregiverId: proposal.caregiverBId,
+            type: "full",
+            coveredUntil: fromMinutes(toMinutes(shiftA.endsAt)),
+            originalReassigned: false,
+          },
+        },
+        [proposal.shiftBId]: {
+          ...current[proposal.shiftBId],
+          status: "replacement_assigned",
+          etaMinutes: caregiverA?.etaMinutes ?? current[proposal.shiftBId].etaMinutes,
+          replacement: {
+            caregiverId: proposal.caregiverAId,
+            type: "full",
+            coveredUntil: fromMinutes(toMinutes(shiftB.endsAt)),
+            originalReassigned: false,
+          },
+        },
+      }));
+      return currentProposals.map((item) =>
+        item.id === proposalId
+          ? { ...item, status: "applied", resolvedAt: new Date().toISOString() }
+          : item,
+      );
     });
   }, []);
 
@@ -150,10 +296,12 @@ export function ShiftProvider({ children }: { children: ReactNode }) {
   const reset = useCallback(() => {
     try {
       window.localStorage.removeItem(STORAGE_KEY);
+      window.localStorage.removeItem(SWAP_STORAGE_KEY);
     } catch {
       // Ignore storage failures.
     }
     setStates(buildInitialStates());
+    setSwapProposals([]);
   }, []);
 
   // --- Active-shift convenience API ---
@@ -175,16 +323,6 @@ export function ShiftProvider({ children }: { children: ReactNode }) {
     (atEtaMinutes: number) => updateState(ACTIVE_SHIFT_ID, { familyWaitingEtaMinutes: atEtaMinutes }),
     [updateState],
   );
-  const assignReplacement = useCallback(
-    (caregiverId: string) =>
-      assignReplacementTo(
-        ACTIVE_SHIFT_ID,
-        caregiverId,
-        "full",
-        fromMinutes(toMinutes(baselineActive.endsAt)),
-      ),
-    [assignReplacementTo, baselineActive.endsAt],
-  );
 
   const value = useMemo<ShiftContextValue>(
     () => ({
@@ -193,7 +331,6 @@ export function ShiftProvider({ children }: { children: ReactNode }) {
       setStatus,
       setEtaMinutes,
       assignedReplacementId: activeState.replacement?.caregiverId ?? null,
-      assignReplacement,
       familyWaitingEtaMinutes: activeState.familyWaitingEtaMinutes,
       markFamilyWaiting,
       hasCheckedIn: CHECKED_IN_STATUSES.includes(activeState.status),
@@ -203,6 +340,12 @@ export function ShiftProvider({ children }: { children: ReactNode }) {
       getEffectiveShift,
       opsAssignReplacement: assignReplacementTo,
       opsReassignOriginal,
+      swapProposals,
+      getSwapForShift,
+      getSwapById,
+      proposeSwap,
+      setSwapDecision,
+      applySwap,
       reset,
     }),
     [
@@ -211,13 +354,18 @@ export function ShiftProvider({ children }: { children: ReactNode }) {
       setStatus,
       setEtaMinutes,
       activeState,
-      assignReplacement,
       markFamilyWaiting,
       saveRecord,
       getShiftState,
       getEffectiveShift,
       assignReplacementTo,
       opsReassignOriginal,
+      swapProposals,
+      getSwapForShift,
+      getSwapById,
+      proposeSwap,
+      setSwapDecision,
+      applySwap,
       reset,
     ],
   );

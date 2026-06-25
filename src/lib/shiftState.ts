@@ -6,7 +6,8 @@ export type CaregiverShiftState =
   | "onTheWay"
   | "delayed"
   | "inProgress"
-  | "replacement"
+  | "replacementRequested"
+  | "replacementAssigned"
   | "cancelled"
   | "done";
 
@@ -26,8 +27,9 @@ export function getCaregiverShiftState(
     case "delay_detected":
       return "delayed";
     case "replacement_requested":
+      return "replacementRequested";
     case "replacement_assigned":
-      return "replacement";
+      return "replacementAssigned";
     case "cancelled":
       return "cancelled";
     case "arrived":

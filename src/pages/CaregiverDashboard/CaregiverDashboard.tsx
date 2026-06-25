@@ -50,7 +50,7 @@ export function CaregiverDashboard() {
 
   return (
     <PageShell title={COPY.caregiver.shiftsTitle} subtitle={caregiver?.name}>
-      <p className="mb-4 text-sm text-slate-500">{COPY.caregiver.shiftsSubtitle}</p>
+      <p className={cn("mb-4 text-sm", TEXT.muted)}>{COPY.caregiver.shiftsSubtitle}</p>
 
       <Tabs
         className="mb-4"

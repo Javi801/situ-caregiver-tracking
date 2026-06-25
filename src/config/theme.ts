@@ -2,6 +2,8 @@ import type { BadgeVariant } from "@/config/status";
 import type { RiskLevel } from "@/types";
 import type { CaregiverShiftState } from "@/lib/shiftState";
 import type { OpsState } from "@/lib/opsState";
+import type { FamilyDecision } from "@/lib/familyDecision";
+import type { FamilyShiftState } from "@/lib/familyShiftState";
 
 /**
  * Single source of truth for color-bearing class strings.
@@ -29,6 +31,8 @@ export const SURFACE = {
   card: "bg-white",
   panel: "bg-slate-50",
   accentSoft: "bg-cyan-50",
+  /** Dimmed backdrop behind modal dialogs. */
+  scrim: "bg-slate-900/40",
 } as const;
 
 /** Borders. */
@@ -110,7 +114,8 @@ export const SHIFT_STATE_ACCENT: Record<CaregiverShiftState, string> = {
   onTheWay: "border-cyan-300 bg-cyan-50",
   delayed: "border-amber-300 bg-amber-50",
   inProgress: "border-green-300 bg-green-50",
-  replacement: "border-amber-300 bg-amber-50",
+  replacementRequested: "border-amber-300 bg-amber-50",
+  replacementAssigned: "border-green-300 bg-green-50",
   cancelled: "border-red-300 bg-red-50",
   done: "border-slate-300 bg-slate-50",
 };
@@ -121,7 +126,8 @@ export const SHIFT_STATE_TEXT: Record<CaregiverShiftState, string> = {
   onTheWay: "text-cyan-800",
   delayed: "text-amber-800",
   inProgress: "text-green-800",
-  replacement: "text-amber-800",
+  replacementRequested: "text-amber-800",
+  replacementAssigned: "text-green-800",
   cancelled: "text-red-800",
   done: "text-slate-700",
 };
@@ -145,4 +151,19 @@ export const OPS_STATE_TEXT: Record<OpsState, string> = {
   ok: "text-green-800",
   pending: "text-amber-800",
   late: "text-red-800",
+};
+
+/** Tag palettes for the family's delay decision on the operations board. */
+export const FAMILY_DECISION_CLASSES: Record<FamilyDecision, string> = {
+  waiting: "bg-slate-100 text-slate-700 border-slate-200",
+  requested: "bg-amber-100 text-amber-800 border-amber-200",
+};
+
+/** Status-banner palettes for the family's live shift card, by visual state. */
+export const FAMILY_SHIFT_STATE_BANNER: Record<FamilyShiftState, string> = {
+  ok: FEEDBACK.success,
+  late: FEEDBACK.warning,
+  replacementRequested: FEEDBACK.warning,
+  replacementInProgress: FEEDBACK.info,
+  replacementAccepted: FEEDBACK.success,
 };

@@ -6,6 +6,7 @@ import { Card, CardBody, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { ShiftCard } from "@/components/cards/ShiftCard";
 import { MedicalRecordView } from "@/components/cards/MedicalRecordView";
+import { ActorSwapBanner } from "@/components/swap/ActorSwapBanner";
 import { COPY } from "@/content/copy";
 import { ROUTES } from "@/config/routes";
 import { useShift } from "@/hooks/shift-context";
@@ -89,6 +90,8 @@ export function ShiftDetail() {
             ) : undefined
           }
         />
+
+        <ActorSwapBanner shiftId={shiftId} viewer="caregiver" />
 
         {!active ? (
           <div

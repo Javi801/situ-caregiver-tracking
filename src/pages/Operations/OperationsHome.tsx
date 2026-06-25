@@ -10,6 +10,7 @@ import { getFamily } from "@/data/families";
 import { getOpsActiveShifts, getOpsUpcomingShifts } from "@/data/shifts";
 import { isDelayed } from "@/lib/eta";
 import { getOpsState } from "@/lib/opsState";
+import { getFamilyDecision } from "@/lib/familyDecision";
 import { cn } from "@/lib/cn";
 import { TEXT } from "@/config/theme";
 import type { Shift } from "@/types";
@@ -30,6 +31,7 @@ export function OperationsHome() {
       opsState: getOpsState(effective.status, delayed),
       caregiverName: getCaregiver(caregiverId)?.name ?? "",
       familyName: getFamily(shift.familyId)?.name ?? "",
+      familyDecision: getFamilyDecision(effective.status, state.familyWaitingEtaMinutes),
     };
   }
 
@@ -49,6 +51,7 @@ export function OperationsHome() {
             opsState={row.opsState}
             caregiverName={row.caregiverName}
             familyName={row.familyName}
+            familyDecision={row.familyDecision}
           />
         ))}
       </div>

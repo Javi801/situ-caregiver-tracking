@@ -1,9 +1,10 @@
 import { useNavigate } from "react-router-dom";
-import { AlertCircle, CheckCircle2, ClipboardList, Info } from "lucide-react";
+import { AlertCircle, CheckCircle2, ClipboardList, Repeat, type LucideIcon } from "lucide-react";
 import { PageShell } from "@/components/layout/PageShell";
 import { Card, CardBody, CardFooter, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { ETAWidget } from "@/components/cards/ETAWidget";
+import { ActorSwapBanner } from "@/components/swap/ActorSwapBanner";
 import { COPY } from "@/content/copy";
 import { ROUTES } from "@/config/routes";
 import { HANDOFF_WINDOW_MINUTES } from "@/config/constants";
@@ -12,8 +13,28 @@ import { useToast } from "@/components/feedback/toast-context";
 import { getCaregiver } from "@/data/caregivers";
 import { isDelayed } from "@/lib/eta";
 import { isWithinArrivalWindow } from "@/lib/arrivalWindow";
+import { isSwapOpen } from "@/lib/swap";
+import { getFamilyShiftState, type FamilyShiftState } from "@/lib/familyShiftState";
 import { cn } from "@/lib/cn";
-import { FEEDBACK } from "@/config/theme";
+import { FAMILY_SHIFT_STATE_BANNER, FEEDBACK } from "@/config/theme";
+
+/** Banner copy for each family-facing shift state. */
+const STATE_MESSAGE: Record<FamilyShiftState, string> = {
+  ok: COPY.family.onTimeMessage,
+  late: COPY.family.delayMessage,
+  replacementRequested: COPY.family.replacementRequestedNote,
+  replacementInProgress: COPY.family.rotationInProgressMessage,
+  replacementAccepted: COPY.family.replacementAssigned,
+};
+
+/** Banner icon for each family-facing shift state. */
+const STATE_ICON: Record<FamilyShiftState, LucideIcon> = {
+  ok: CheckCircle2,
+  late: AlertCircle,
+  replacementRequested: AlertCircle,
+  replacementInProgress: Repeat,
+  replacementAccepted: CheckCircle2,
+};
 
 export function FamilyStatus() {
   const navigate = useNavigate();
@@ -24,6 +45,7 @@ export function FamilyStatus() {
     hasCheckedIn,
     assignedReplacementId,
     markFamilyWaiting,
+    getSwapForShift,
     record,
   } = useShift();
   const { notify } = useToast();
@@ -32,6 +54,18 @@ export function FamilyStatus() {
   const delayed = isDelayed(scheduledEtaMinutes, shift.etaMinutes);
   const canReportMissing =
     !hasCheckedIn && isWithinArrivalWindow(shift.startsAt, HANDOFF_WINDOW_MINUTES, new Date());
+  // Replacement requested but operations hasn't assigned anyone yet: lock the
+  // decision buttons and wait — no replacement is shown until operations acts.
+  const replacementRequested = shift.status === "replacement_requested" && !assignedReplacementId;
+
+  const swap = getSwapForShift(shift.id);
+  const familyState = getFamilyShiftState({
+    delayed,
+    status: shift.status,
+    hasOpenSwap: swap ? isSwapOpen(swap.status) : false,
+    hasAssignedReplacement: assignedReplacementId !== null,
+  });
+  const StateIcon = STATE_ICON[familyState];
 
   function handleWait() {
     markFamilyWaiting(shift.etaMinutes);
@@ -39,9 +73,10 @@ export function FamilyStatus() {
   }
 
   function handleRequestReplacement() {
+    // Flag the request for operations and wait. The family does not pick or
+    // confirm a replacement — operations decides and informs them afterwards.
     setStatus("replacement_requested");
     notify(COPY.family.requestToast);
-    navigate(ROUTES.replacement);
   }
 
   function handleFillRecord() {
@@ -62,23 +97,15 @@ export function FamilyStatus() {
           <div
             className={cn(
               "flex items-start gap-2 rounded-lg border p-4 text-sm",
-              delayed ? FEEDBACK.warning : FEEDBACK.success,
+              FAMILY_SHIFT_STATE_BANNER[familyState],
             )}
             role="status"
           >
-            <Info className="mt-0.5 h-4 w-4" aria-hidden="true" />
-            <p>{delayed ? COPY.family.delayMessage : COPY.family.onTimeMessage}</p>
+            <StateIcon className="mt-0.5 h-4 w-4" aria-hidden="true" />
+            <p>{STATE_MESSAGE[familyState]}</p>
           </div>
 
-          {assignedReplacementId ? (
-            <div
-              className={cn("flex items-start gap-2 rounded-lg border p-4 text-sm", FEEDBACK.success)}
-              role="status"
-            >
-              <CheckCircle2 className="mt-0.5 h-4 w-4" aria-hidden="true" />
-              <p>{COPY.family.replacementAssigned}</p>
-            </div>
-          ) : null}
+          <ActorSwapBanner shiftId={shift.id} viewer="family" />
 
           {canReportMissing ? (
             <div
@@ -110,10 +137,12 @@ export function FamilyStatus() {
 
           {delayed ? (
             <>
-              <Button variant="secondary" onClick={handleWait}>
+              <Button variant="secondary" onClick={handleWait} disabled={replacementRequested}>
                 {COPY.family.wait}
               </Button>
-              <Button onClick={handleRequestReplacement}>{COPY.family.requestReplacement}</Button>
+              <Button onClick={handleRequestReplacement} disabled={replacementRequested}>
+                {COPY.family.requestReplacement}
+              </Button>
               {!record ? (
                 <Button variant="secondary" onClick={handleFillRecord}>
                   <ClipboardList className="h-4 w-4" aria-hidden="true" />

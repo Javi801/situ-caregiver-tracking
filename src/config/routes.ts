@@ -6,10 +6,10 @@ export const ROUTES = {
   operations: "/operations",
   operationsShift: "/operations/shift/:shiftId",
   operationsReplacement: "/operations/shift/:shiftId/replacement",
+  operationsSwap: "/operations/shift/:shiftId/swap",
   family: "/family",
   familyShift: "/family/shift/:shiftId",
   familyRecords: "/family/records",
-  replacement: "/replacement",
   checkIn: "/checkin",
   handoff: "/handoff",
 } as const;
@@ -34,4 +34,9 @@ export function operationsShiftPath(shiftId: string): string {
 /** Build the concrete path to a shift's operations replacement screen. */
 export function operationsReplacementPath(shiftId: string): string {
   return ROUTES.operationsReplacement.replace(":shiftId", shiftId);
+}
+
+/** Build the concrete path to a shift's caregiver-rotation (swap) screen. */
+export function operationsSwapPath(shiftId: string): string {
+  return ROUTES.operationsSwap.replace(":shiftId", shiftId);
 }

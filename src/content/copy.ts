@@ -41,7 +41,8 @@ export const COPY = {
       onTheWay: "On the way",
       delayed: "Running late",
       inProgress: "Shift in progress",
-      replacement: "Replacement in progress",
+      replacementRequested: "Replacement in progress",
+      replacementAssigned: "Replacement confirmed",
       cancelled: "Cancelled due to delay",
       done: "Completed",
     },
@@ -112,6 +113,10 @@ export const COPY = {
       pending: "Awaiting info",
       late: "Running late",
     },
+    familyDecision: {
+      waiting: "Family waiting",
+      requested: "Replacement requested",
+    },
     activeShift: "Active shift",
     assignedCaregiver: "Assigned caregiver",
     eta: "ETA",
@@ -161,6 +166,81 @@ export const COPY = {
     reassignToast: "Original caregiver reassigned to the remaining hours.",
     noCandidates: "No replacement candidates available.",
     backToProfile: "Back to shift",
+    proposeRotation: "Propose caregiver rotation",
+    proposeRotationNote:
+      "No free backup covers the full shift? Offer a swap with a caregiver assigned to another family.",
+    rotationInProgress: "A caregiver rotation is in progress for this shift.",
+    viewRotation: "View rotation",
+    rejectedCandidateNote: "Declined a previous rotation.",
+  },
+  operationsSwap: {
+    title: "Rotate caregivers",
+    subtitle: (familyName: string): string => `Find a swap to cover ${familyName}'s shift`,
+    pickTitle: "Caregivers from other families",
+    pickHelp:
+      "Propose a swap with a caregiver currently assigned to another family. The delayed caregiver would cover that other shift instead. All four parties must accept.",
+    noCandidates:
+      "No compatible caregiver from another family right now. Go back and assign a free backup, or let the family wait.",
+    viableNew: (eta: string): string => `Arrives in ${eta} — sooner than the delayed caregiver.`,
+    viableOriginal: (start: string, end: string): string =>
+      `Delayed caregiver can cover ${start}–${end} afterwards.`,
+    currentShift: (start: string, end: string): string => `Current shift ${start}–${end}`,
+    propose: "Propose swap",
+    proposeToast: "Swap proposed. All four parties were notified.",
+    summaryTitle: "Caregiver rotation in progress",
+    summaryHint: "View coordination",
+    coordinationTitle: "Swap coordination",
+    coordinationHelp:
+      "Each party answers from their own view. The operator only tracks the request and applies it once all four accept. A single decline cancels the swap.",
+    donorAssumed:
+      "For this demo, the other family and the other caregiver are assumed to have accepted. Waiting on the affected family and the delayed caregiver.",
+    progress: (accepted: number): string => `${accepted}/4 parties accepted`,
+    roleLabel: {
+      caregiverA: "Delayed caregiver",
+      caregiverB: "New caregiver",
+      familyA: "Affected family",
+      familyB: "Other family",
+    },
+    roleMove: {
+      caregiverA: (familyName: string): string => `Would move to ${familyName}`,
+      caregiverB: (familyName: string): string => `Would move to ${familyName}`,
+      familyA: (caregiverName: string): string => `Would receive ${caregiverName}`,
+      familyB: (caregiverName: string): string => `Would receive ${caregiverName}`,
+    },
+    apply: "Apply swap",
+    applyNote: "Enabled once all four parties accept.",
+    applyToast: "Swap applied. Both caregivers were reassigned.",
+    cancelledNote:
+      "The swap was cancelled because a party declined. The caregiver drops to the bottom of the list and the family is asked to wait or look for another replacement.",
+    appliedNote: (caregiverB: string, familyA: string, caregiverA: string, familyB: string): string =>
+      `${caregiverB} now covers ${familyA}; ${caregiverA} now covers ${familyB}.`,
+    backToReplacement: "Back to replacement",
+    notLate:
+      "A rotation can only be proposed for a delayed shift.",
+  },
+  swap: {
+    title: "Caregiver rotation",
+    familyAPrompt: (caregiverName: string): string =>
+      `Operations proposes ${caregiverName} to cover today's shift instead of your delayed caregiver. Do you accept the change?`,
+    familyBPrompt: (caregiverName: string): string =>
+      `Operations asks to send your caregiver to another family and have ${caregiverName} cover your shift. Do you accept?`,
+    caregiverAPrompt: (familyName: string): string =>
+      `A replacement was requested for your delayed shift. Are you available to take a shift with ${familyName} instead?`,
+    caregiverBPrompt: (familyName: string): string =>
+      `Operations asks if you can cover a shift with ${familyName} instead of your current one.`,
+    newCaregiver: "New caregiver",
+    shiftInfo: "Shift details",
+    startsAt: (time: string): string => `Starts at ${time}`,
+    travel: (eta: string, distance: string): string => `${eta} away · ${distance}`,
+    reliability: (pct: string): string => `${pct} reliability`,
+    accept: "Accept rotation",
+    decline: "Decline rotation",
+    acceptToast: "Response recorded: accepted.",
+    declineToast: "Response recorded: declined.",
+    acceptedWaiting: "You accepted. Waiting for the other parties to respond.",
+    declinedByYou: "You declined this rotation.",
+    cancelledMessage: "This rotation was cancelled because one of the parties declined.",
+    appliedMessage: "The rotation was confirmed. Schedules have been updated.",
   },
   family: {
     title: "Your caregiver",
@@ -177,6 +257,10 @@ export const COPY = {
     requestReplacement: "Request replacement",
     waitToast: "Thanks. We'll keep you updated.",
     requestToast: "Replacement requested. Operations is finding a match.",
+    replacementRequestedNote:
+      "Replacement requested. We've notified operations — you'll be updated as soon as a caregiver is assigned.",
+    rotationInProgressMessage:
+      "A caregiver rotation is in progress. We're waiting for everyone to confirm the change.",
     fillRecord: "Fill medical record",
     fillRecordNote: "The caregiver is running late. You can fill in the medical record now.",
     reportNotArrived: "Report caregiver not arrived",
@@ -190,16 +274,6 @@ export const COPY = {
     },
   },
   replacement: {
-    title: "Replacement match",
-    suggested: "Suggested caregiver",
-    distance: "Distance",
-    eta: "ETA",
-    matchNotes: "Match notes",
-    accept: "Accept replacement",
-    reject: "Reject replacement",
-    acceptToast: "Replacement accepted. The new caregiver is on the way.",
-    rejectToast: "Replacement rejected. Looking for another match.",
-    note: "The replacement covers the full shift. The original shift will be cancelled.",
     /** Human-readable match summary, composed from already-formatted values. */
     matchNote: (etaLabel: string, distanceLabel: string, reliabilityLabel: string): string =>
       `Arrives in ${etaLabel}, ${distanceLabel} away, ${reliabilityLabel} reliability.`,

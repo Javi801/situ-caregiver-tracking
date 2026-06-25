@@ -4,6 +4,7 @@ import { PageShell } from "@/components/layout/PageShell";
 import { Card, CardBody } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { ShiftCard } from "@/components/cards/ShiftCard";
+import { ActorSwapBanner } from "@/components/swap/ActorSwapBanner";
 import { FamilyStatus } from "@/pages/FamilyStatus/FamilyStatus";
 import { COPY } from "@/content/copy";
 import { ROUTES } from "@/config/routes";
@@ -44,6 +45,7 @@ export function FamilyShiftDetail() {
     <PageShell title={COPY.family.title} subtitle={family?.name}>
       <div className="space-y-4">
         <ShiftCard shift={shift} family={family} />
+        <ActorSwapBanner shiftId={shiftId} viewer="family" />
         <div
           className={cn("flex items-start gap-2 rounded-lg border p-4 text-sm", FEEDBACK.info)}
           role="note"
