@@ -58,6 +58,49 @@ export interface HandoffReport {
 /** Who completed a medical record for a shift. */
 export type RecordAuthor = "caregiver" | "family";
 
+/**
+ * The four parties whose agreement is required to rotate caregivers between
+ * two shifts. "A" is the at-risk shift; "B" is the donor shift.
+ */
+export type SwapPartyRole = "caregiverA" | "caregiverB" | "familyA" | "familyB";
+
+/** A single party's response to a swap proposal. */
+export type SwapPartyDecision = "pending" | "accepted" | "rejected";
+
+/** Each party's current decision on a swap. */
+export type SwapDecisions = Record<SwapPartyRole, SwapPartyDecision>;
+
+/**
+ * Global state of a swap, derived from the four party decisions plus whether
+ * operations has applied the reassignment:
+ * - proposed: at least one party still pending, none rejected
+ * - accepted: all four accepted, not yet applied
+ * - rejected: at least one party rejected (aborts the swap)
+ * - applied: accepted and the reassignment was executed by operations
+ */
+export type SwapStatus = "proposed" | "accepted" | "rejected" | "applied";
+
+/**
+ * A proposed rotation between two shifts assigned to different families.
+ * Caregiver B (donor) would cover shift A; caregiver A (at-risk) would cover
+ * shift B. Concretes only when all four parties accept.
+ */
+export interface SwapProposal {
+  id: string;
+  /** At-risk shift whose caregiver is delayed. */
+  shiftAId: string;
+  /** Donor shift whose caregiver is offered to cover shift A. */
+  shiftBId: string;
+  caregiverAId: string;
+  caregiverBId: string;
+  familyAId: string;
+  familyBId: string;
+  decisions: SwapDecisions;
+  status: SwapStatus;
+  createdAt: string;
+  resolvedAt: string | null;
+}
+
 /** A handoff report tied to a shift, with provenance metadata. */
 export interface MedicalRecord extends HandoffReport {
   id: string;
