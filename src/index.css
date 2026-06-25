@@ -5,7 +5,7 @@
 :root {
   color-scheme: light;
   /* Scale the whole UI ~110% (Tailwind uses rem, so spacing and text scale together). */
-  font-size: 110%;
+  font-size: 120%;
 }
 
 body {
