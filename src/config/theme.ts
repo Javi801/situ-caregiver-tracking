@@ -4,6 +4,7 @@ import type { CaregiverShiftState } from "@/lib/shiftState";
 import type { OpsState } from "@/lib/opsState";
 import type { FamilyDecision } from "@/lib/familyDecision";
 import type { FamilyShiftState } from "@/lib/familyShiftState";
+import { COPY } from "@/content/copy";
 
 /**
  * Single source of truth for color-bearing class strings.
@@ -103,9 +104,9 @@ export const RISK_CLASSES: Record<RiskLevel, string> = {
 };
 
 export const RISK_LABEL: Record<RiskLevel, string> = {
-  low: "Low risk",
-  medium: "Medium risk",
-  high: "High risk",
+  low: COPY.risk.low,
+  medium: COPY.risk.medium,
+  high: COPY.risk.high,
 };
 
 /** Highlight palette for the active shift card, by caregiver-facing state. */

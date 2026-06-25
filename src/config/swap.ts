@@ -1,4 +1,5 @@
 import type { SwapPartyDecision, SwapStatus } from "@/types";
+import { COPY } from "@/content/copy";
 
 /** Traffic-light palettes for a party's decision (operator coordination view). */
 export const SWAP_DECISION_CLASSES: Record<SwapPartyDecision, string> = {
@@ -16,15 +17,15 @@ export const SWAP_DECISION_DOT: Record<SwapPartyDecision, string> = {
 
 /** Short labels for each decision. */
 export const SWAP_DECISION_LABEL: Record<SwapPartyDecision, string> = {
-  accepted: "Accepted",
-  pending: "Awaiting reply",
-  rejected: "Declined",
+  accepted: COPY.swapDecision.accepted,
+  pending: COPY.swapDecision.pending,
+  rejected: COPY.swapDecision.rejected,
 };
 
 /** Labels for the global swap status. */
 export const SWAP_STATUS_LABEL: Record<SwapStatus, string> = {
-  proposed: "Awaiting responses",
-  accepted: "All parties agreed",
-  rejected: "Swap cancelled",
-  applied: "Swap applied",
+  proposed: COPY.swapStatus.proposed,
+  accepted: COPY.swapStatus.accepted,
+  rejected: COPY.swapStatus.rejected,
+  applied: COPY.swapStatus.applied,
 };

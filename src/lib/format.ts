@@ -17,7 +17,7 @@ export function formatTime(isoDate: string): string {
   if (Number.isNaN(date.getTime())) {
     return COPY.common.timePlaceholder;
   }
-  return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  return date.toLocaleTimeString("es-CL", { hour: "2-digit", minute: "2-digit" });
 }
 
 /** Format an ISO datetime as a local date label, e.g. "Jun 24, 2026". */
@@ -26,7 +26,7 @@ export function formatDate(isoDate: string): string {
   if (Number.isNaN(date.getTime())) {
     return COPY.common.timePlaceholder;
   }
-  return date.toLocaleDateString([], { year: "numeric", month: "short", day: "numeric" });
+  return date.toLocaleDateString("es-CL", { year: "numeric", month: "short", day: "numeric" });
 }
 
 /** Format a reliability score (0..1) as a percentage label, e.g. "96%". */
