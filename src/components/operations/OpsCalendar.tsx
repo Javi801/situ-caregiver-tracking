@@ -6,6 +6,7 @@ import { formatDate, formatTime } from "@/lib/format";
 import { cn } from "@/lib/cn";
 import { OPS_STATE_ACCENT, OPS_STATE_TEXT, TEXT } from "@/config/theme";
 import type { OpsState } from "@/lib/opsState";
+import type { FamilyDecision } from "@/lib/familyDecision";
 import type { Shift } from "@/types";
 
 export interface OpsRow {
@@ -13,6 +14,7 @@ export interface OpsRow {
   opsState: OpsState;
   caregiverName: string;
   familyName: string;
+  familyDecision: FamilyDecision | null;
 }
 
 function groupByDate(rows: OpsRow[]): Array<{ date: string; rows: OpsRow[] }> {
