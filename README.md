@@ -4,6 +4,8 @@ Mockup funcional de la **Solución 2: detección en tiempo real y respuesta oper
 
 El objetivo del prototipo es mostrar cómo Situ podría conocer el estado real de un turno antes de que el problema escale a la familia, usando hitos operacionales simples: confirmación de inicio de traslado, estimación de llegada, detección de riesgo, comunicación a la familia, gestión de reemplazo, check-in y ficha de inicio/cierre del turno.
 
+El análisis completo con las tres soluciones propuestas está disponible en [`docs/propuesta_solucion_situ.pdf`](docs/propuesta_solucion_situ.pdf). Este mockup implementa la Solución 2 de ese documento.
+
 ## Contexto del caso
 
 Situ entrega servicios de cuidado a domicilio para adultos mayores. El problema planteado ocurre cuando, a primera hora de la mañana, una familia llama porque la cuidadora no llegó. En ese momento existen dos urgencias simultáneas: una familia angustiada por la falta de atención y un equipo de operaciones que debe reaccionar sin haber anticipado el incidente.
@@ -42,6 +44,10 @@ El flujo principal es:
 Este repositorio contiene un prototipo frontend clickeable. No incluye backend real, autenticación, GPS real ni base de datos persistente. Los datos están mockeados y el estado del flujo se guarda localmente en `localStorage` para facilitar la demostración.
 
 El foco está en comunicar la lógica de producto, la experiencia de usuario y la estructura técnica que permitiría evolucionar la solución hacia un producto real.
+
+## Documentación de apoyo
+
+- [`docs/propuesta_solucion_situ.pdf`](docs/propuesta_solucion_situ.pdf): informe con el análisis del problema, tres alternativas de solución y justificación de la Solución 2 implementada como mockup.
 
 ## Stack técnico
 
