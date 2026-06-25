@@ -6,6 +6,9 @@ import type {
   Shift,
   ShiftStatus,
   HandoffReport,
+  SwapPartyDecision,
+  SwapPartyRole,
+  SwapProposal,
 } from "@/types";
 
 /** A replacement assigned to a shift by operations. */
@@ -35,7 +38,6 @@ export interface ShiftContextValue {
   setStatus: (status: ShiftStatus) => void;
   setEtaMinutes: (etaMinutes: number) => void;
   assignedReplacementId: string | null;
-  assignReplacement: (caregiverId: string) => void;
   familyWaitingEtaMinutes: number | null;
   markFamilyWaiting: (atEtaMinutes: number) => void;
   hasCheckedIn: boolean;
@@ -54,6 +56,23 @@ export interface ShiftContextValue {
   ) => void;
   /** Reassign the original caregiver to the remaining (uncovered) hours. */
   opsReassignOriginal: (shiftId: string) => void;
+
+  // --- Caregiver rotation (swap between two families) ---
+  /** Every swap proposal, newest first. */
+  swapProposals: SwapProposal[];
+  /** The most recent swap proposal touching a shift (as A or B), or null. */
+  getSwapForShift: (shiftId: string) => SwapProposal | null;
+  getSwapById: (proposalId: string) => SwapProposal | null;
+  /** Create a swap proposal between an at-risk shift A and a donor shift B. */
+  proposeSwap: (shiftAId: string, shiftBId: string) => string | null;
+  /** Record a single party's decision; resolves the proposal when complete. */
+  setSwapDecision: (
+    proposalId: string,
+    role: SwapPartyRole,
+    decision: SwapPartyDecision,
+  ) => void;
+  /** Apply an accepted swap: reassign each caregiver to the other shift. */
+  applySwap: (proposalId: string) => void;
 
   reset: () => void;
 }
